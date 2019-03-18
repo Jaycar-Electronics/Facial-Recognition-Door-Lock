@@ -3,14 +3,16 @@
 Want to see who's trying to enter your room? Or do you want simple keyless entry into your workshed? Too easy with this project. Uses the RPI Camera in a transparent waterproof housing. You just put it all together, we've done the code for you.
 
 ## Bill of Materials
-XC9001 raspberry pi
-XC9020 raspberry pi camera
-LA5077 narrow door strike
-WC6026 socket socket (3 Leads)
-XC4514 stepdown module
-XC4419 relay board
-PT3002 Speaker Terminals 4 way
-HB6251 Transparent polycarb case.
+|Qty| Code | Description |
+|---|---|---|
+|1 | [XC9001](http://jaycar.com.au/p/XC9001) | Raspberry Pi 3B+
+|1 | [XC9020](http://jaycar.com.au/p/XC9020) | Raspberry Pi Camera
+|1 | [LA5077](http://jaycar.com.au/p/LA5077) | Narrow Failsafe Door Strike
+|1 | [WC6026](http://jaycar.com.au/p/WC6026) | Cables
+|1 | [XC4514](http://jaycar.com.au/p/XC4514) | Power supply module
+|1 | [XC4419](http://jaycar.com.au/p/XC4419) | Relay board
+|1 | [PT3002](http://jaycar.com.au/p/PT3002) | 4 way Terminal block
+|1 | [HB6251](http://jaycar.com.au/p/HB6251) | Waterproof enclosure
 
 * You will also need a 12v power supply.
 
