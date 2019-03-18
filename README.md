@@ -113,6 +113,8 @@ Here we just used our double-sided tape to position the regulator, relay, and ca
 
 In the picture above, we didn't attach the camera. That will go on last once it is plugged into the RPi.
 
+Also remember that we are using a USB plug to power the device. If the wires to your plug is a bit flimsy, you can lock them down with either zip-ties (and drill-holes near the cable) or some hot-glue to do the trick.
+
 
 #### Terminal block.
 
@@ -126,10 +128,6 @@ Remember that one Red/Black pair will be the power in, and the other will be out
 
 You should put this terminal block to the side so that you have enough room in the unit for the pi to fit in, around the USB cable.
 
-Once that has been done, you can connect it all up and press the acrylic sheet in. You should find that the acrylic is fairly tight but not impossible fit against the walls of the container.
-
-![](images/power.jpg)
-
 When connecting the terminals, keep in mind that there's two ways that you can connect the terminals, depending on whether you want it to be **general-case** or **active-case**. For example, if you were controlling something that ran on 5v, 48v, or something other than 12v. you would only be able to use the general case connections; as shown below.
 
 ![](images/case.png)
@@ -139,6 +137,10 @@ In the general case, you would feed power *into* terminal `A` and when the signa
 However, for our purposes, it is easier to go with the active case, Where you simply connect the device (such as the door lock) to the `A` and `B` terminals, and power is automatically delivered at the right signal.
 
 If you have connected relays before, this should be second nature to you.
+
+Once that has been done, you can connect it all up and press the acrylic sheet in. You should find that the acrylic is fairly tight but not impossible fit against the walls of the container.
+
+![](images/power.jpg)
 
 ## Use
 
