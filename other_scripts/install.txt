@@ -1,0 +1,81 @@
+
+sudo apt-get update -y
+sudo apt-get install build-essential tk-dev libncurses5-dev libncursesw5-dev libreadline6-dev libdb5.3-dev libgdbm-dev libsqlite3-dev libssl-dev libbz2-dev libexpat1-dev liblzma-dev zlib1g-dev libffi-dev -y
+
+wget https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tar.xz
+tar xf Python-3.7.0.tar.xz
+cd Python-3.7.0
+./configure
+make -j 4
+sudo make altinstall
+
+
+sudo apt-get install build-essential cmake pkg-config
+sudo apt-get install libjpeg-dev libtiff5-dev libjasper-dev libpng12-dev
+sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev libv4l-dev
+sudo apt-get install libxvidcore-dev libx264-dev
+sudo apt-get install libatlas-base-dev gfortran
+sudo apt-get install python3-dev
+wget -O opencv.zip https://github.com/Itseez/opencv/archive/3.3.0.zip
+unzip opencv.zip
+
+pip3 install numpy
+cd ~/opencv-3.3.0/
+mkdir build
+cd build
+cmake -D CMAKE_BUILD_TYPE=RELEASE \
+						  -D CMAKE_INSTALL_PREFIX=/usr/local \
+						  -D INSTALL_PYTHON_EXAMPLES=ON \
+						  -D OPENCV_EXTRA_MODULES_PATH=~/opencv_contrib-3.3.0/modules \
+						  -D BUILD_EXAMPLES=ON ..
+
+						  |/etc/dphys-swapfile  and then edit the CONF_SWAPSIZE  variable:
+						  |# CONF_SWAPSIZE=100
+						  |CONF_SWAPSIZE=1024
+
+sudo /etc/init.d/dphys-swapfile restart
+
+make -j4
+sudo make install
+sudo ldconfig
+
+cd /usr/local/lib/python3.5/site-packages/
+sudo mv cv2.cpython-35m-arm-linux-gnueabihf.so cv2.so
+
+sudo apt-get install build-essential \
+  cmake \
+  gfortran \
+  git \
+  wget \
+  curl \
+  graphicsmagick \
+  libgraphicsmagick1-dev \
+  libatlas-dev \
+  libavcodec-dev \
+  libavformat-dev \
+  libboost-all-dev \
+  libgtk2.0-dev \
+  libjpeg-dev \
+  liblapack-dev \
+  libswscale-dev \
+  pkg-config \
+  python3-dev \
+  python3-numpy \
+  python3-pip \
+  zip
+
+
+sudo apt-get install python3-picamera
+sudo pip3 install --upgrade picamera[array]
+
+mkdir -p dlib
+git clone -b 'v19.6' --single-branch https://github.com/davisking/dlib.git dlib/
+cd ./dlib
+sudo python3 setup.py install --compiler-flags "-mfpu=neon"
+
+sudo pip3 install face_recognition
+
+
+
+
+

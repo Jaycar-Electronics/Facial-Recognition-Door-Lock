@@ -1,0 +1,6 @@
+install on raspb
+
+cron script to wget /kickstart/
+
+
+

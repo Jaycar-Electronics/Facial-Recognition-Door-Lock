@@ -1,0 +1,114 @@
+<head>
+	<link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.css" />
+	<link
+										type="text/css"
+		  rel="stylesheet"
+	href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css"
+ />
+	<script src="https://unpkg.com/@babel/polyfill@latest/dist/polyfill.js"></script>
+	<script src="https://unpkg.com/vue@latest/dist/vue.js"></script>
+	<script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
+	<script src="https://unpkg.com/axios/dist/axios.js"></script>
+</head>
+<style>
+.main{
+	border: 1px solid red;
+	border-radius: 3px;
+}
+.side{
+	border: 1px solid blue;
+	border-radius: 3px;
+}
+.personcard{
+	border: 1px solid black;
+	border-radius: 3px;
+	padding: 10px;
+	margin: 3px;
+}
+.personimage{
+	width: 150px;
+	height: 150px;
+}
+</style>
+<body>
+	<!-- Our application root element -->
+	<div id="app">
+		<b-container class="">
+			<b-row>
+				<b-col cols="7" class='main'>
+					<b-img src='/mainview'></b-img>
+				</b-col>
+				<b-col cols="5" class='side'>
+					<b-row align-h='center'>
+						<b-button align-h='center' @click='merge()'>
+							Merge all common names
+						</b-button>
+					</b-row>
+					<b-row align-h='center' v-for='person in people' :key='person.uid'>
+						<b-container class='personcard'>
+							<b-row>
+								<b-col>
+									<b-img thumbnail :src="`${'/image/' + person.uid}`" class='personimage'> </b-img>
+								</b-col>
+								<b-col>
+									<b-form inline>
+										<b-input v-model='person.name'  placeholder='Set a friendly name here' class='mb-2 mr-sm-2 mb-sm-0'></b-input>
+										<b-button size='sm' @click='send_delete(person.uid)'> Delete </b-button>
+									</b-form>
+									<em> {{ person.uid }} </em>
+									<b-form-checkbox switch v-model='person.allowed' name='checked-allowed' @change='chmod(person)'>
+										Allowed Access
+									</b-form-checkbox>
+								</b-col>
+							</b-row>
+						</b-container>
+					</b-card>
+				</b-row>
+			</b-col>
+		</b-row>
+		</b-container>
+	</div>
+
+	<!-- Start running your app -->
+	<script>
+window.app = new Vue({
+	el: '#app',
+	data (){ return {
+		people: [], 
+	}},
+
+	methods: {
+		chmod(person){
+			axios.post('/access',{
+				'uid' : person.uid,
+			}).then(response =>{
+				console.log(response);
+				this.populate();
+			}).catch(error=>{
+				console.log(error);
+			});
+		},
+
+		send_delete(uid){
+			axios.post('/delete',[uid]).then(response =>{
+				console.log(response);
+				this.populate();
+			}).catch(error=>{
+				console.log(error);
+			});
+		},
+
+		populate(){
+			axios.get('/names').then(response =>{
+				this.people = response.data;
+			}).catch(error =>{
+				console.log(error);
+			});
+		}
+	},
+	mounted(){
+		this.populate();
+	}
+})
+	</script>
+</body>
