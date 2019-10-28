@@ -1,4 +1,14 @@
-#!/usr/bin/python3.7
+#!/usr/bin/python3
+'''
+This script serves as the main to the doorlock project;
+
+it will 
+- serve a SANIC.py webserver, on port 80; serving static files from ./index
+- start up the `identifier` object; which is our facial-recognition program in ./identifier.py
+- connect the two together, so that the webserver is operating on the ./identifier.py
+
+'''
+
 import cv2
 import numpy as np
 import face_recognition as fr
@@ -21,6 +31,11 @@ app = Sanic(__name__)
 identifier = Identifier()
 
 
+@app.route('/')
+async def index(request):
+    return await sanic_response.file('index/index.html')
+
+
 @app.route('/image/<uid>')
 async def getImage(request, uid):
     img_loc = identifier.getImageLocation(uid)
@@ -30,10 +45,6 @@ async def getImage(request, uid):
 
     return await sanic_response.file(img_loc)
 
-
-@app.route('/')
-async def index(request):
-    return await sanic_response.file('index/index.html')
 
 # manage allowed people
 @app.route('/access', methods=['GET', 'POST'])
