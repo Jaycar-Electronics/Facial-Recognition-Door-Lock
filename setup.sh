@@ -16,7 +16,7 @@ sudo pip3 install face-recognition
 # make it behave like a proper program 
 
 # install the doorlock program starter in /etc/init.d/
-sudo cp misc/doorlock.sh /etc/init.d/doorlock
+sudo cp src/doorlock.init.sh /etc/init.d/doorlock
 sudo chmod +x /etc/init.d/doorlock
 
 # this should hopefully start up the program on boot.
