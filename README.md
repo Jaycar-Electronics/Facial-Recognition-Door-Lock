@@ -182,7 +182,7 @@ the file `functions.py` has the `accessDenied` and `accessGranted` functions tha
 
 The software could also be made to run a bit faster with some more clever asynchronous/threading; we welcome pull requests through github and are always happy to discuss the code more in depth; so if you think you have what it takes, feel free to fork the project and contribute to make a better project for all.
 
-#### Beginner's changes
+### Beginner's changes
 
 Changes that should be easy enough for beginners to start contributing:
 
