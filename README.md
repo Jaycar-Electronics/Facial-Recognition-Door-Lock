@@ -1,4 +1,4 @@
-# Facial-Recognition-Door-Lock
+# Facial Recognition Door Lock
 
 Want to see who's trying to enter your room? Or do you want simple key-less entry into your work shed? This project makes it easy using the raspberry pi camera and relay to door-strike to perform a simple locking mechanism.
 
@@ -8,7 +8,7 @@ This project provides a network web-interface so you can check up on your raspbe
 
 If it sees a face that you have _allowed_, it will activate the door-strike so you can open the door.
 
-- [Facial-Recognition-Door-Lock](#Facial-Recognition-Door-Lock)
+- [Facial Recognition Door Lock](#Facial-Recognition-Door-Lock)
   - [Bill of Materials](#Bill-of-Materials)
     - [You might also need](#You-might-also-need)
     - [Have you considered?](#Have-you-considered)
