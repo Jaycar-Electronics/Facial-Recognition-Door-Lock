@@ -2,139 +2,151 @@
 
 Want to see who's trying to enter your room? Or do you want simple key-less entry into your work shed? This project makes it easy using the raspberry pi camera and relay to door-strike to perform a simple locking mechanism.
 
-This project provides a network web-interface so you can check up on your raspberry pi camera. Every time the raspberry pi sees a new face, it will save it onto a database and allow you to _Allow_ or _Disallow_ those people from entering your room/shed/doorway.
+![hero](hero.jpg)
+
+This project provides a network web-interface so you can check up on your raspberry pi camera. Every time the raspberry pi sees a new face, it will save it onto a database and allow you to _Allow_ or _Disallow_ those people from entering your room.
 
 If it sees a face that you have _allowed_, it will activate the door-strike so you can open the door.
 
+- [Facial-Recognition-Door-Lock](#Facial-Recognition-Door-Lock)
+  - [Bill of Materials](#Bill-of-Materials)
+    - [You might also need](#You-might-also-need)
+    - [Have you considered?](#Have-you-considered)
+  - [System Overview](#System-Overview)
+  - [Connection diagrams](#Connection-diagrams)
+  - [Programming](#Programming)
+    - [Source code discussion](#Source-code-discussion)
+  - [Assembly Instructions](#Assembly-Instructions)
+    - [Cut acrylic](#Cut-acrylic)
+    - [Prepare regulator (optional)](#Prepare-regulator-optional)
+    - [Mounting](#Mounting)
+      - [Terminal block.](#Terminal-block)
+  - [Use](#Use)
+  - [Explore](#Explore)
+    - [Future improvements and good first issues.](#Future-improvements-and-good-first-issues)
+
 ## Bill of Materials
 
-We've separated the bill of materials into two parts; the core and the door-lock; if you want just the bare-bones _"do something when you see a face you recognise"_ then use the core and add your own items to it; but the instructions are written for the door-strike.
+| Qty   | Code                                     | Description                            |
+| ----- | ---------------------------------------- | -------------------------------------- |
+| 1     | [XC9001](http://jaycar.com.au/p/XC9001)  | Raspberry Pi 3B+                       |
+| 1     | [XC9020](http://jaycar.com.au/p/XC9020)  | Raspberry Pi Camera                    |
+| 1     | [LA5077](http://jaycar.com.au/p/LA5077)  | Narrow Fail-Safe Door Strike           |
+| 1     | [WC6026](http://jaycar.com.au/p/WC6026)  | Cables                                 |
+| 1     | [XC4514](http://jaycar.com.au/p/XC4514)  | Power supply module                    |
+| 1     | [XC4419](http://jaycar.com.au/p/XC4419)  | Relay board                            |
+| 1     | [PT3002](http://jaycar.com.au/p/PT3002)  | 4 way Terminal block                   |
+| 1     | [HB6251](http://jaycar.com.au/p/HB6251)  | Waterproof enclosure                   |
+| 1 (+) | [HM9509](https://jaycar.com.au/p/HM9509) | Acryllic sheet (plus spares if needed) |
 
-### Core
+In this project, we are using the [XC4514](https://jaycar.com.au/p/XC4514) with a 12v power supply to provide power to both the door strike and the raspberry pi.
 
-| Qty | Code                                    | Description         |
-| --- | --------------------------------------- | ------------------- |
-| 1   | [XC9001](http://jaycar.com.au/p/XC9001) | Raspberry Pi 3B+    |
-| 1   | [XC9020](http://jaycar.com.au/p/XC9020) | Raspberry Pi Camera |
+### You might also need
 
-- You will need some way to power the RPI, we now have the [MP3536](https://jaycar.com.au/p/MP3536) which is specifically designed for the RPi.
-- If you are activating anything such as relays or motors (other than the door-strike project), you will have to power them separately. be careful as any amount of stray power can kill the pi; When in doubt, isolate.
+- RPi power supply, such as [MP3536](https://jaycar.com.au/p/MP3536).
+- 12v power source, to activate the door strike.
 
-### Door Strike
+### Have you considered?
 
-In addition to above, the project below mentions these items:
+- [XC9021](https://jaycar.com.au/p/XC9021) Night vision camera for the Raspberry Pi
+- [WC7756](https://jaycar.com.au/p/WC7756) micro USB extension lead, which can make for easier powering of the Raspberry Pi.
 
-| Qty | Code                                    | Description                  |
-| --- | --------------------------------------- | ---------------------------- |
-| 1   | [LA5077](http://jaycar.com.au/p/LA5077) | Narrow Fail-Safe Door Strike |
-| 1   | [WC6026](http://jaycar.com.au/p/WC6026) | Cables                       |
-| 1   | [XC4514](http://jaycar.com.au/p/XC4514) | Power supply module          |
-| 1   | [XC4419](http://jaycar.com.au/p/XC4419) | Relay board                  |
-| 1   | [PT3002](http://jaycar.com.au/p/PT3002) | 4 way Terminal block         |
-| 1   | [HB6251](http://jaycar.com.au/p/HB6251) | Waterproof enclosure         |
+## System Overview
 
-- You will also need a 12v power supply to activate the door strike. In this project below, we are using the 12v power supply to power both the door strike and the RPi through the use of [XC4514](https://jaycar.com.au/p/XC4514)
+![system overview](images/system.png)
 
-#### Optional extras you might not have
+The idea is simple; the RPI camera looks out infront of the door lock and runs a program to recognise faces. Once a face is detected, it will then generate an `ID` for that face, and check if it is in the database.
 
-- [XC4989](https://jaycar.com.au/p/XC4989) 16GB SD card
-- [XC9030](https://jaycar.com.au/p/XC9030) NOOBS 16GB SD card
-- [MP3536](https://jaycar.com.au/p/MP3536) RPi Power supply
-- [XC9021](https://jaycar.com.au/p/XC9021) Raspberry Pi Night vision Camera
+- if the face ID is in the database, and it's allowed, it activates the relay (and unlocks the door)
+- if the face is in the database, and it's not allowed, it keeps the door shut.
+- if the face is not in the database, it adds it to the database and keeps the door shut.
+
+When we access the web interface, it can show us a list of faces that have been detected and have a switch so we can allow / disallow each one. (faces have been blurred below for privacy, but the blurring does not happen on the unit.)
+
+![blurred faces](images/screenshot.png)
+
+The code is cobbled together with python but if you're good at making web interfaces (using vue.js) then we'd love some contributions to make the interface better.
 
 ## Connection diagrams
 
-The general schematic to the design is below.
+The general schematic to the design is below. This design uses the [XC4514](https://jaycar.com.au/p/XC4514) to power the rpi off the same power supply as the relay / door strike. We also use a 4 terminal block to make mounting and connecting cables a bit easier.
 
 ![schematic](images/schematic.png)
 
-In all, its a fairly simple set up. The RPi is provided power via the XC4514 regulator module, and drives a small relay which will shunt input power (+12v) to the door strike when needed. To control the relay, we use the RPi Camera running facial recognition code, from the `face_recognition` library by [@ageitgeu](https://github.com/ageitgey/face_recognition)
-
+To control the relay, we use the RPi Camera running facial recognition code, from the `face_recognition` library by [@ageitgeu](https://github.com/ageitgey/face_recognition) and our additions below.
 
 ## Programming
 
-We've set up a startup script to make it easier to install this software but it is still under a bit of development; You will be able to find more recent information regarding this project on the github page.
+We've set up a startup script to make it easier to install this software but it is still under a bit of development. Try it out and let us know of any problems via the issues tab on the github repo.
 
-When you have booted into your version of linux (NOOBS, console, etc.) Type the following into a terminal:
+Once you have booted into linux on your raspberry pi, you can type the below commands to download this repository and run the setup script:
 
-```sh
+```bash
 git clone https://github.com/Jaycar-Electronics/Facial-Recognition-Door-Lock
-```
-
-once that has finished, run the setup.sh script:
-
-```sh
 cd Facial-Recognition-Door-Lock
 ./setup.sh
 ```
 
-Leave it for a bit, it should set the program up for you then restart the raspberry pi.
+This should set everything up for you and reboot the pi when it is finished.
 
-While it's running, feel free to go through the [Assembly Instructions](#Assembly) and build the rest of the housing before placing the rpi in.
+While it's running, feel free to go through the [Assembly Instructions](#Assembly-Instructions) and build the rest of the housing before placing the rpi in.
 
-**Make sure to jot down the IP address through the `ifconfig` command.** There is no screen once it is all mounted, so we will have to remote into the device to make changes.
+Note: **Make sure to jot down the IP address through the `ifconfig` command.** There is no screen once it is all mounted, so we will have to remote into the device to make changes. if you want to use something such as "http://camera.local" as your network address, have a look at [mDNS]().
 
-#### Technical information
+### Source code discussion
 
 The code itself is easy enough to follow and has 3 main parts:
 
-`doorlock.py`
-This is the script that pulls it all together and creates a webserver that you can issue commands to/from.
-
-`functions.py` is the script which outlines the functions for access granted, denied, and contains the main camera/detect loop. This is the script that contains the GPIO controlling code.
-
-`identifier.py`
-This is the python object that manages the user identities, such as who is allowed in and what they look like
+- `doorlock.py`
+  - This is the script that pulls it all together and creates a webserver that you can issue commands to/from.
+- `functions.py`
+  - is the script which outlines the functions for access granted, denied, and contains the main camera/detect loop. This is the script that contains the GPIO controlling code.
+- `identifier.py`
+  - This is the python object that manages the user identities, such as who is allowed in and what they look like
 
 We've commented the code as much as possible, so check out the scripts and get a feel for what's happening if you want to modify any of the program.
 
-The software uses `Sanic` which is a fork of the `Flask` python library, to work with asynchronous calls through the new async libraries introduced in Python3.5
-
-Ideally, raspbian would be up to Python3.7 by now, but unfortunately, and to make the whole process a little easier to install, we're stuck on 3.5 untill raspbian update their repositories, or if someone wants to submit a "install python3.7" script that will _just work_ (tm)
-
-Clientside is done by [Vue-Bootstrap](https://bootstrap-vue.js.org/) which makes it very easy to build dynamic displays.
-
 ## Assembly Instructions
 
-We've tried to make this a little easier without having to buy a tonne of screws and to make it fairly waterproof, but there's always room for improvement; feel free to grab some [HP0418](https://jaycar.com.au/p/HP0418) with nuts and washers and mount the acrylic and camera(2mm size) proper.
+We've tried to make this a little easier without having to buy a tonne of screws and to make it fairly waterproof, but there's always room for improvement; feel free to experiment with mounting and let us know how it turns out! We can update the project with recommended changes.
 
-For our purposes though, these work well:
+The following is just a guide on one possible way to mount it. For our purposes though, these work well enough.
 
-#### Cut acrylic
+### Cut acrylic
 
-The width of the HB6251 is 80mm wide, so we're aiming to cut an acrylic panel atleast 80mm wide so that it can fit snuggly into the case. Start by marking a line straight across one of the edges of the acrylic, 80mm in from the edge.
+The width of the [HB6251](https://jaycar.com.au/p/HB6251) is 80mm wide, so we're aiming to cut an acrylic panel at least 80mm wide so that it can snuggle into the case.
 
-![](images/cut.jpg)
+Start by marking a line straight across one of the edges of the acrylic, 80mm in from the edge using a pencil.
 
-We're using our offcut in the image above but the idea is the same. We're going to be breaking the acrylic on the bench so the line needs to run from both ends of the acrylic so the cut can work properly. You can also mark another 80mm going from the edge to the first line: Once you make the first break, then you can make the second break with the line going from edge to edge.
+![cutting acrylic](images/cut.jpg)
 
-Once the lines are marked, _score_ them with a sharp knife, by running it along the lines to make a bit of a groove. you can use the ruler to keep the knife on point, and if you're young, get an adult to help you, because safety is important.
+In the photo above we are using a smaller piece, but the idea is the same. You need to use a ruler to ensure that the line is straight, and _"score"_ it with a knife ( multiple shallow cuts to break the surface). It works better if you score both sides of the acrylic, so make sure that you make it straight and accurate.
 
-With the groove in place, simply place the acrylic on the edge of a bench, with the bigger side on the bench, and push down on the offcut while holding the larger piece. This will break the acrylic along the groove and separate the two pieces.
+Score both sides, then use force to push down, with the edge of a table or bench right on the line of split.
 
-![](images/push.jpg)
+![force](images/push.jpg)
 
-Repeat the process again for the second line, so you should have a small piece of acrylic atleast 80mm on one side. You can peel of the brown paper if you want to have a clear acrylic piece.
+With a bit of force, the acrylic should eventually snap into a very clean sharp line. If not, then it's possible that it was not _scored_ enough or the force was a bit too un-even. It can take a few tries to get right so get a few spare [HM9509](https://jaycar.com.au/p/HM9509).
 
-#### Prepare regulator
+### Prepare regulator (optional)
 
-Solder some wires to the regulator, such that the output side has the socket connections still on them so they can plug into the RPi. The input side should have bare wires going to it, as we'll be connecting this to the stereo connector ([PT3002](https://jaycar.com.au/p/PT3002)) later.
+The regulator is adjustable, so we must adjust it to work at the 5.1v required by the Raspberry Pi.
 
-![](images/reg.jpg)
+Previously we have thought to use socket connections to connect straight into the `5V` pins on the raspberry Pi, however in hindsight this could lead to problems and instead, we'd recommend soldering on a micro-USB connector ( slice up an old cable or use [WC7756](https://jaycar.com.au/p/WC7756)).
 
-Connect up the regulator to a power supply and a multimeter; we want to set the voltage on the regulator to a stable `5v`. The good thing about this regulator is that it is very stable and should not fail in the case of giving too much power to the RPi.
+Keep in mind that this section is completely optional. It could be better to just tap out the 5V connection to the outside of the case, using the [WC7756](https://jaycar.com.au/p/WC7756), and drilling a hole to hot-glue the end of the cable so that it is connectable from the outside. This might mean that people can pull out the power supply however.
 
-![](images/voltage.jpg)
+Connect up the regulator and adjust it to 5V - 5.1V before you connect it to anything on the raspberry Pi.
+
+![Adjusting the regulator](images/voltage.jpg)
 
 The regulator does a great job of providing the current and stable voltage that we need.
 
-As we are using a 3B+ model pi, it appears that the RPi does not boot properly when powered off the GPIO, as originally intended. The best method of powering the pi would be to cut and strip a spare Micro USB lead so that you can attach that to the output of the Regulator module instead of the GPIO Pins. Do some testing to see that your RPI boots up with the green light flashing through your power method before you continue to mounting.
-
-#### Mounting
+### Mounting
 
 Here we just used our double-sided tape to position the regulator, relay, and camera onto the acrylic base. You could use screws and nylon washers here to make a bit more of a professional mount / display.
 
-![](images/mount.jpg)
+![mounting](images/mount.jpg)
 
 In the picture above, we didn't attach the camera. That will go on last once it is plugged into the RPi.
 
@@ -142,7 +154,7 @@ Also remember that we are using a USB plug to power the device. If the wires to 
 
 #### Terminal block.
 
-The terminals are easy to place. Simply drill 4 holes in the housing to line up with each of the terminals. If you want to make the entire assembly a tad more waterproof, you can drill them underneath the unit for when you mount it to the wall, which will cover up the holes to protect from watersplashing.
+The terminals are easy to place. Simply drill 4 holes in the housing to line up with each of the terminals. If you want to make the entire assembly a tad more waterproof, you can drill them underneath the unit for when you mount it to the wall, which will cover up the holes to protect from splashing. See the below picture for guidance.
 
 ![](images/terminals.png)
 
@@ -152,49 +164,50 @@ Remember that one Red/Black pair will be the power in, and the other will be out
 
 You should put this terminal block to the side so that you have enough room in the unit for the pi to fit in, around the USB cable.
 
-When connecting the terminals, keep in mind that there's two ways that you can connect the terminals, depending on whether you want it to be **general-case** or **active-case**. For example, if you were controlling something that ran on 5v, 48v, or something other than 12v. you would only be able to use the general case connections; as shown below.
+When connecting the terminals, keep in mind that there's two ways that you can connect the terminals,
+depending on what you want.
 
-![](images/case.png)
+We've labelled them as _general_ and _active_ - which changes how the connection to the door strike is working. If you want the system to be completely 5V ( as so there is no 12V inside the case, and you are not using the regulator) then you can go with the general case, so that the terminals (A and B) will be shorted once the signal comes from the software ( via connecting A/B to the relay COM/NC).
 
-In the general case, you would feed power _into_ terminal `A` and when the signal is received (the correct face is identified) you would get power out on `B`.
+Otherwise, you can connect it as shown in the _12V active_ which means that terminals A/B will act as a power supply; providing 12V when a signal comes from the software.
 
-However, for our purposes, it is easier to go with the active case, Where you simply connect the device (such as the door lock) to the `A` and `B` terminals, and power is automatically delivered at the right signal.
+Either way is possible; it's just a case of how you want to set up the door strike with it's own power supply or using the power supply connected to the raspberry PI.
 
-If you have connected relays before, this should be second nature to you.
+![two connection types](images/case.png)
 
-Once that has been done, you can connect it all up and press the acrylic sheet in. You should find that the acrylic is fairly tight but not impossible fit against the walls of the container.
+Once that has been done, you can connect it all up and press the acrylic sheet in. You should find that the acrylic is fairly tight but not impossible fit against the walls of the container. Once the relay and required components are in, the pi should power up just fine. You can run some test code to see if the relay functions before putting it in as wel.
 
-![](images/power.jpg)
+![Connected up](images/power.jpg)
+
+Once it is in, test it out and tighten the screws so it remains water-proof.
 
 ## Use
 
 Here is a screenshot of the device in use. Once it is hooked up to the network, find the device IP through your router settings or otherwise and open the page on a web-browser such as chrome.
 
-![](images/screenshot.png)
+![web interface](images/screenshot.png)
 
-Here it will generate a thumbnail of each face that it has found and has memory of, as well as the current live feed. you can delete users and deny access.
+Here it will generate a thumbnail of each face that it has found and has memory of, as well as the current live feed. you can delete users and deny access. You can access the webpage by going to the ip-address of the raspberry PI. If you also enable `ssh` access you can connect to it wirelessly and configure it from within.
 
-## Future improvements
+## Explore
 
 There is a wide variety of what you can do with this project; for instance, if you want to connect a speaker system to it, you can use something like [PyMedia](http://pymedia.org/) to play audio such as a voice prompt to say "access denied."
 
 the file `functions.py` has the `accessDenied` and `accessGranted` functions that define what happens when the user is denied or granted access, in our code you can see that it turns the relay on and off.
 
-The software could also be made to run a bit faster with some more clever asynchronous/threading; we welcome pull requests through github and are always happy to discuss the code more in depth; so if you think you have what it takes, feel free to fork the project and contribute to make a better project for all.
+### Future improvements and good first issues.
 
-### Beginner's changes
+Below is a list of items we'd like to see in the project, but haven't had time to implement ourselves. If you want to work on these issues below, click on the related issue number and comment anything you might have issues with, we're happy to help you as much as possible.
 
-Changes that should be easy enough for beginners to start contributing:
-
-- Identifier.py
-  _ Set friendly names hasn't properly been implemented yet, this should just be a dictionary entry for each uid and a string being the user's real name
-  _ `Merge all common names` has not been implemented
-- doorlock.py
-  _ `Merge all common names` commands have not been implemented
-  _ Provide a way for the client to poll for new updates, showing new faces have been found.
-- index/index.html
-  _ Poll the server for updates
-  _ Provide a better looking interface.
-- functions.py
-  _ Show the uid or friendly name for each person shown in the blue-square. this is done on the tutorial for facial_recognition, so it should be easy enough to copy over to this project too.
-  _ Change the face_recognition library as it is too slow. dlib takes almost 1-2 seconds on each face_encoding;
+| Issue ID                                                                            | Description                                                                                                                     | Difficulty   |
+| ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| [#4 ](https://github.com/Jaycar-Electronics/Facial-Recognition-Door-Lock/issues/4)  | Run faster with better async / code layout                                                                                      | Intermediate |
+| [#5 ](https://github.com/Jaycar-Electronics/Facial-Recognition-Door-Lock/issues/5)  | Better User Interface with vuetify                                                                                              | Beginner     |
+| [#6 ](https://github.com/Jaycar-Electronics/Facial-Recognition-Door-Lock/issues/6)  | Change the `Sanic` library to something more supported                                                                          | Beginner     |
+| [#7 ](https://github.com/Jaycar-Electronics/Facial-Recognition-Door-Lock/issues/7)  | build a Python 3.7 installer and convert project to python 3.7                                                                  | Beginner     |
+| [#8 ](https://github.com/Jaycar-Electronics/Facial-Recognition-Door-Lock/issues/8)  | Set friendly names for user IDs                                                                                                 | Beginner     |
+| [#9 ](https://github.com/Jaycar-Electronics/Facial-Recognition-Door-Lock/issues/9)  | Client should see new user ids as they are scanned                                                                              | Intermediate |
+| [#10](https://github.com/Jaycar-Electronics/Facial-Recognition-Door-Lock/issues/10) | Show the name on the screen when the face is detected                                                                           | Beginner     |
+| [#11](https://github.com/Jaycar-Electronics/Facial-Recognition-Door-Lock/issues/11) | Improve the stream on the web interface (hint look at our [pan-tilt camera](https://www.jaycar.com.au/pan-tilt-camera) project) | Intermediate |
+| [#12](https://github.com/Jaycar-Electronics/Facial-Recognition-Door-Lock/issues/12) | Improve the speed of the `face_recognition` library. dlib is too slow.                                                          | Advanced     |
+| [#13](https://github.com/Jaycar-Electronics/Facial-Recognition-Door-Lock/issues/13) | Merge username / IDs                                                                                                            | Intermediate |
